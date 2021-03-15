@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import java.util.Comparator;
 import java.util.List;
@@ -60,12 +61,11 @@ class DigraphTests {
 
   static <T> void assertValidTopologicalOrdering(Digraph<T> digraph) {
     List<T> topologicalOrdering = digraph.getTopologicalOrder();
-    assertThat(topologicalOrdering).containsExactlyElementsIn(digraph.nodes());
 
-    for (T ancestor : digraph.nodes()) {
-      for (T descendant : descendantNodes(digraph, ancestor)) {
-        assertThat(topologicalOrdering).containsAtLeast(ancestor, descendant).inOrder();
-      }
+    assertThat(topologicalOrdering).containsExactlyElementsIn(digraph.nodes());
+    for (EndpointPair<T> edge : digraph.edges()) {
+      assertThat(edge.isOrdered()).isTrue();
+      assertThat(topologicalOrdering).containsAtLeast(edge.source(), edge.target()).inOrder();
     }
   }
 
